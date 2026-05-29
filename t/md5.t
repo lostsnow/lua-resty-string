@@ -122,3 +122,73 @@ true
 md5: 5d41402abc4b2a76b9719d911017c592
 --- no_error_log
 [error]
+
+
+
+=== TEST 5: MD5 final_hex
+--- http_config eval: $::HttpConfig
+--- config
+    location /t {
+        content_by_lua_block {
+            local resty_md5 = require "resty.md5"
+            local md5 = resty_md5:new()
+            md5:update("hello")
+            local hex_digest = md5:final_hex()
+            ngx.say("md5: ", hex_digest)
+            ngx.say(hex_digest == ngx.md5("hello"))
+        }
+    }
+--- request
+GET /t
+--- response_body
+md5: 5d41402abc4b2a76b9719d911017c592
+true
+--- no_error_log
+[error]
+
+
+
+=== TEST 6: MD5 final_hex incremental
+--- http_config eval: $::HttpConfig
+--- config
+    location /t {
+        content_by_lua_block {
+            local resty_md5 = require "resty.md5"
+            local md5 = resty_md5:new()
+            md5:update("hel")
+            md5:update("lo")
+            local hex_digest = md5:final_hex()
+            ngx.say("md5: ", hex_digest)
+            ngx.say(hex_digest == ngx.md5("hello"))
+        }
+    }
+--- request
+GET /t
+--- response_body
+md5: 5d41402abc4b2a76b9719d911017c592
+true
+--- no_error_log
+[error]
+
+
+
+=== TEST 7: MD5 final_hex empty string
+--- http_config eval: $::HttpConfig
+--- config
+    location /t {
+        content_by_lua_block {
+            local resty_md5 = require "resty.md5"
+            local md5 = resty_md5:new()
+            md5:update("")
+            local hex_digest = md5:final_hex()
+            ngx.say("md5: ", hex_digest)
+            ngx.say(hex_digest == ngx.md5(""))
+        }
+    }
+--- request
+GET /t
+--- response_body
+md5: d41d8cd98f00b204e9800998ecf8427e
+true
+--- no_error_log
+[error]
